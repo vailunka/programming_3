@@ -72,27 +72,27 @@ public class Server implements HttpHandler {
 
     private static SSLContext serverSSLContext() throws Exception{
         char[] passphrase = "123456".toCharArray();
-   KeyStore ks = KeyStore.getInstance("JKS");
-   ks.load(new FileInputStream("keystore.jks"), passphrase);
+        KeyStore ks = KeyStore.getInstance("JKS");
+        ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
 
-   KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-   kmf.init(ks, passphrase);
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+        kmf.init(ks, passphrase);
 
-   TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-   tmf.init(ks);
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+        tmf.init(ks);
 
-   SSLContext ssl = SSLContext.getInstance("TLS");
-   ssl.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-   return ssl;
+        SSLContext ssl = SSLContext.getInstance("TLS");
+        ssl.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+        return ssl;
 }
 
 
     public static void main(String[] args) throws Exception {
         //create the http server to port 8001 with default logger
-        HttpsServer server = HttpsServer.create(new InetSocketAddress(8001),0);
-        SSLContext sslContext = serverSSLContext();
-
-        server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
+        
+            HttpsServer server = HttpsServer.create(new InetSocketAddress(8001),0);
+            SSLContext sslContext = serverSSLContext();
+            server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
             public void configure (HttpsParameters params) {
             InetSocketAddress remote = params.getClientAddress();
             SSLContext c = getSSLContext();
@@ -105,5 +105,6 @@ public class Server implements HttpHandler {
         // creates a default executor
         server.setExecutor(null); 
         server.start(); 
+        }
     }
-}
+    
