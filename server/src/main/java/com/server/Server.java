@@ -12,12 +12,12 @@ import javax.net.ssl.TrustManagerFactory;
 import com.sun.net.httpserver.HttpsServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.BasicAuthenticator;
+import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpsConfigurator;
 import java.io.*;
 import com.sun.net.httpserver.HttpsParameters;
 //todot
-
 
 
 public class Server implements HttpHandler {
@@ -73,7 +73,7 @@ public class Server implements HttpHandler {
     private static SSLContext serverSSLContext() throws Exception{
         char[] passphrase = "123456".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
+        ks.load(new FileInputStream("C:/Users/ailun/serveriohjelmointi1/group-0047-project/server/keystore.jks"), passphrase);
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, passphrase);
@@ -84,13 +84,18 @@ public class Server implements HttpHandler {
         SSLContext ssl = SSLContext.getInstance("TLS");
         ssl.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
         return ssl;
-}
+    }
+
 
 
     public static void main(String[] args) throws Exception {
         //create the http server to port 8001 with default logger
+        UserAuthenticator userAuthenticator = new UserAuthenticator("get");
         
-            HttpsServer server = HttpsServer.create(new InetSocketAddress(8001),0);
+        HttpsServer server = HttpsServer.create(new InetSocketAddress(8001),0);
+        HttpContext HttpContext = server.createContext("/warning", new Server());
+        HttpContext.setAuthenticator(userAuthenticator);
+        try{
             SSLContext sslContext = serverSSLContext();
             server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
             public void configure (HttpsParameters params) {
@@ -99,12 +104,22 @@ public class Server implements HttpHandler {
             SSLParameters sslparams = c.getDefaultSSLParameters();
             params.setSSLParameters(sslparams);
             }
-           });
-        //create context that defines path for the resource, in this case a "help"
-        server.createContext("/warning", new Server());
-        // creates a default executor
-        server.setExecutor(null); 
-        server.start(); 
+            });
+            
+            //create context that defines path for the resource, in this case a "help"
+            
+            // creates a default executor
+            server.setExecutor(null); 
+            server.start(); 
+        }catch(FileNotFoundException e){
+        System.out.println("File not found");
+         }
+        catch(Exception e){
+        e.printStackTrace();
         }
+    
     }
+}
+
+ 
     
