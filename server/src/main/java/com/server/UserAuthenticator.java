@@ -24,12 +24,6 @@ public class UserAuthenticator extends com.sun.net.httpserver.BasicAuthenticator
 
     public static boolean addUser(String userName, String password) {
         // TODO implement this by adding user to the Hashtable
-        if(!userName.isEmpty()){
-            return false;
-        }
-        if(!password.isEmpty()){
-            return false;
-        }
         if(!users.containsKey(userName)){
             users.put(userName, password);
             return true;

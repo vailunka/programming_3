@@ -99,7 +99,7 @@ public class Server implements HttpHandler {
 
 
         try{
-            SSLContext sslContext = serverSSLContext(args[0],args[1]);
+            SSLContext sslContext = serverSSLContext();
             server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
             public void configure (HttpsParameters params) {
             InetSocketAddress remote = params.getClientAddress();
