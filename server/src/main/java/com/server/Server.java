@@ -38,7 +38,8 @@ public class Server implements HttpHandler {
         messages.add(text);
         t.sendResponseHeaders(200, -1);
         t.close();
-        } else if (t.getRequestMethod().equalsIgnoreCase("GET")) {
+        } 
+        else if (t.getRequestMethod().equalsIgnoreCase("GET")) {
             
             String responseString = "";
 
@@ -73,7 +74,7 @@ public class Server implements HttpHandler {
     private static SSLContext serverSSLContext() throws Exception{
         char[] passphrase = "123456".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream("C:/Users/ailun/serveriohjelmointi1/group-0047-project/server/keystore.jks"), passphrase);
+        ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, passphrase);
@@ -91,10 +92,12 @@ public class Server implements HttpHandler {
     public static void main(String[] args) throws Exception {
         //create the http server to port 8001 with default logger
         UserAuthenticator userAuthenticator = new UserAuthenticator("get");
-        
         HttpsServer server = HttpsServer.create(new InetSocketAddress(8001),0);
         HttpContext HttpContext = server.createContext("/warning", new Server());
         HttpContext.setAuthenticator(userAuthenticator);
+        server.createContext("/registration", new RegistrationHandler(userAuthenticator));
+
+
         try{
             SSLContext sslContext = serverSSLContext();
             server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {

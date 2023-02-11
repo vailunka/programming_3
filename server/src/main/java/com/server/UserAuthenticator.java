@@ -4,7 +4,7 @@ import java.security.Key;
 import java.util.*;
 
 public class UserAuthenticator extends com.sun.net.httpserver.BasicAuthenticator {
-    private Map<String,String> users = null;
+    private static Map<String,String> users = null;
 
     public UserAuthenticator(String realm){
         super(realm);
@@ -14,10 +14,28 @@ public class UserAuthenticator extends com.sun.net.httpserver.BasicAuthenticator
     
 	@Override
 	public boolean checkCredentials(String username, String password) {
-		// TODO Auto-generated method stub
-        if(username.equals("dummy") && password.equals("passwd")){
+		// TODO Auto-generated method stubs
+        
+        if(users.containsKey(username) && password.equals(users.get(username))){
             return true;
         }
-		return false;
+        return false;
 	}
+
+    public static boolean addUser(String userName, String password) {
+        // TODO implement this by adding user to the Hashtable
+        if(!userName.isEmpty()){
+            return false;
+        }
+        if(!password.isEmpty()){
+            return false;
+        }
+        if(!users.containsKey(userName)){
+            users.put(userName, password);
+            return true;
+        }
+        return false;
+       
 }
+}
+
