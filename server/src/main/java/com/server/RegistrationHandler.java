@@ -21,15 +21,22 @@ public class RegistrationHandler implements HttpHandler{
     public void handle(HttpExchange r) throws IOException {
         // TODO Auto-generated method stub
         if (r.getRequestMethod().equalsIgnoreCase("POST")) {
-        
+            
             // Handle POST requests here (users send this for sending messages)
             String text = new BufferedReader(new InputStreamReader(r.getRequestBody(),
             StandardCharsets.UTF_8)).lines().collect(Collectors.joining("\n"));
-            String [] register = null;
-            register = text.split(":");
+            String [] register = text.split(":");
+            if(register.length != 2){
+                String noResponse = "asd";
+                byte [] bytes = noResponse.getBytes("UTF-8"); 
+                r.sendResponseHeaders(401, bytes.length);
+                OutputStream outputStream = r.getResponseBody();
+                outputStream.write(noResponse.getBytes());
+                outputStream.flush();
+                outputStream.close();
+            }
             
             if(UserAuthenticator.addUser(register[0], register[1])){
-                
                 String noResponse = "register completed";
                 byte [] bytes = noResponse.getBytes("UTF-8"); 
                 r.sendResponseHeaders(200, bytes.length);
@@ -37,13 +44,13 @@ public class RegistrationHandler implements HttpHandler{
                 outputStream.write(noResponse.getBytes());
                 outputStream.flush();
                 outputStream.close();
-                
-
             }
+       
             else{
+                
                 String noResponse = "user already exist";
                 byte [] bytes = noResponse.getBytes("UTF-8"); 
-                r.sendResponseHeaders(403, bytes.length);
+                r.sendResponseHeaders(401, bytes.length);
                 OutputStream outputStream = r.getResponseBody();
                 outputStream.write(noResponse.getBytes());
                 outputStream.flush();
@@ -51,7 +58,7 @@ public class RegistrationHandler implements HttpHandler{
             }
             }
         else {
-
+            
             String noResponse = "not allowed";
             byte [] bytes = noResponse.getBytes("UTF-8"); 
             r.sendResponseHeaders(403, bytes.length);
