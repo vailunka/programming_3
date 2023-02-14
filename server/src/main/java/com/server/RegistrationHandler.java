@@ -23,51 +23,24 @@ public class RegistrationHandler implements HttpHandler{
         if (r.getRequestMethod().equalsIgnoreCase("POST")) {
             
             // Handle POST requests here (users send this for sending messages)
-            String text = new BufferedReader(new InputStreamReader(r.getRequestBody(),
-            StandardCharsets.UTF_8)).lines().collect(Collectors.joining("\n"));
+            String text = Response.postHandle(r);
             String [] register = text.split(":");
             if(register.length != 2){
-                String noResponse = "asd";
-                byte [] bytes = noResponse.getBytes("UTF-8"); 
-                r.sendResponseHeaders(401, bytes.length);
-                OutputStream outputStream = r.getResponseBody();
-                outputStream.write(noResponse.getBytes());
-                outputStream.flush();
-                outputStream.close();
+                Response.responseHandlerPost("Need User or password", 401, r);
             }
             
             if(UserAuthenticator.addUser(register[0], register[1])){
-                String noResponse = "register completed";
-                byte [] bytes = noResponse.getBytes("UTF-8"); 
-                r.sendResponseHeaders(200, bytes.length);
-                OutputStream outputStream = r.getResponseBody();
-                outputStream.write(noResponse.getBytes());
-                outputStream.flush();
-                outputStream.close();
+                
+                Response.responseHandlerPost("Registeration completed", 200, r);
             }
        
             else{
-                
-                String noResponse = "user already exist";
-                byte [] bytes = noResponse.getBytes("UTF-8"); 
-                r.sendResponseHeaders(401, bytes.length);
-                OutputStream outputStream = r.getResponseBody();
-                outputStream.write(noResponse.getBytes());
-                outputStream.flush();
-                outputStream.close();
+                Response.responseHandlerPost("User already exist", 401, r);
             }
             }
         else {
-            
-            String noResponse = "not allowed";
-            byte [] bytes = noResponse.getBytes("UTF-8"); 
-            r.sendResponseHeaders(403, bytes.length);
-            OutputStream outputStream = r.getResponseBody();
-            outputStream.write(noResponse.getBytes());
-            outputStream.flush();
-            outputStream.close();
-        // Inform user here that only POST and GET functions are supported and send an error code
-        
+            Response.responseHandlerPost("Only post allowed", 403, r);
+        // Inform user here that only POST functions are supported and send an error code
         }
         
     }

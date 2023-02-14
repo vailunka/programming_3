@@ -32,9 +32,8 @@ public class Server implements HttpHandler {
     if (t.getRequestMethod().equalsIgnoreCase("POST")) {
         
         // Handle POST requests here (users send this for sending messages)
-        String text = new BufferedReader(new InputStreamReader(t.getRequestBody(),
-        StandardCharsets.UTF_8)).lines().collect(Collectors.joining("\n"));
-        System.out.println(text);
+        
+        String text = Response.postHandle(t);
         messages.add(text);
         t.sendResponseHeaders(200, -1);
         t.close();
@@ -50,31 +49,20 @@ public class Server implements HttpHandler {
             if(messages.size() == 0){
                 responseString = "No messages";
             }
-            byte [] bytes = responseString.getBytes("UTF-8"); 
-            t.sendResponseHeaders(200, bytes.length);
-            OutputStream outputStream = t.getResponseBody();
-            outputStream.write(responseString.getBytes());
-            outputStream.flush();
-            outputStream.close();
+            Response.responseHandlerPost(responseString,200, t);
         // Handle GET requests here (users use this to get messages)
         } else {
 
-            String noResponse = "Not supported";
-            byte [] bytes = noResponse.getBytes("UTF-8"); 
-            t.sendResponseHeaders(400, bytes.length);
-            OutputStream outputStream = t.getResponseBody();
-            outputStream.write(noResponse.getBytes());
-            outputStream.flush();
-            outputStream.close();
+            Response.responseHandlerPost("not support", 400, t);
         // Inform user here that only POST and GET functions are supported and send an error code
         
         }
     }
 
-    private static SSLContext serverSSLContext(String args, String args1) throws Exception{
-        char[] passphrase = args1.toCharArray();
+    private static SSLContext serverSSLContext() throws Exception{
+        char[] passphrase = "123456".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(args), passphrase);
+        ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore.jks"), passphrase);
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, passphrase);
@@ -99,7 +87,7 @@ public class Server implements HttpHandler {
 
 
         try{
-            SSLContext sslContext = serverSSLContext(args[0], args[1]);
+            SSLContext sslContext = serverSSLContext();
             server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
             public void configure (HttpsParameters params) {
             InetSocketAddress remote = params.getClientAddress();
