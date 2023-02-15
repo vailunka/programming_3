@@ -59,10 +59,13 @@ public class Server implements HttpHandler {
         }
     }
 
-    private static SSLContext serverSSLContext(String args, String args1) throws Exception{
-        char[] passphrase = args1.toCharArray();
+    //private static SSLContext serverSSLContext(String args, String args1) throws Exception{
+    private static SSLContext serverSSLContext() throws Exception{
+        //char[] passphrase = args1.toCharArray();
+        char[] passphrase = "123456".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(args), passphrase);
+        //ks.load(new FileInputStream(args), passphrase);
+        ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, passphrase);
@@ -85,14 +88,15 @@ public class Server implements HttpHandler {
             HttpContext HttpContext = server.createContext("/warning", new Server());
             HttpContext.setAuthenticator(userAuthenticator);
             server.createContext("/registration", new RegistrationHandler(userAuthenticator));
-            SSLContext sslContext = serverSSLContext(args[0], args[1]);
+            //SSLContext sslContext = serverSSLContext(args[0], args[1]);
+            SSLContext sslContext = serverSSLContext();
             server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
                 public void configure (HttpsParameters params) {
                     InetSocketAddress remote = params.getClientAddress();
                     SSLContext c = getSSLContext();
                     SSLParameters sslparams = c.getDefaultSSLParameters();
                     params.setSSLParameters(sslparams);
-                }
+            }
             });
             
             //create context that defines path for the resource, in this case a "help"

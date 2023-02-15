@@ -25,15 +25,16 @@ public class RegistrationHandler implements HttpHandler{
             // Handle POST requests here (users send this for sending messages)
             String text = Response.postHandle(r);
             String [] register = text.split(":");
+            //if no username or password
             if(register.length != 2){
                 Response.responseHandlerPost("Need User or password", 401, r);
             }
-            
+            //registeration completed
             if(UserAuthenticator.addUser(register[0], register[1])){
                 
                 Response.responseHandlerPost("Registeration completed", 200, r);
             }
-       
+            // user already exist
             else{
                 Response.responseHandlerPost("User already exist", 401, r);
             }

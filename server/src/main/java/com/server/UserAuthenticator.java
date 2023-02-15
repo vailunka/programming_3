@@ -5,11 +5,12 @@ import java.util.*;
 
 public class UserAuthenticator extends com.sun.net.httpserver.BasicAuthenticator {
     private static Map<String,String> users = null;
-
+    
     public UserAuthenticator(String realm){
         super(realm);
         users = new Hashtable<String, String>();
         users.put("dummy", "passwd");
+        
     }
     
 	@Override
