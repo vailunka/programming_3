@@ -79,22 +79,20 @@ public class Server implements HttpHandler {
 
     public static void main(String[] args) throws Exception {
         //create the http server to port 8001 with default logger
-        UserAuthenticator userAuthenticator = new UserAuthenticator("get");
-        HttpsServer server = HttpsServer.create(new InetSocketAddress(8001),0);
-        HttpContext HttpContext = server.createContext("/warning", new Server());
-        HttpContext.setAuthenticator(userAuthenticator);
-        server.createContext("/registration", new RegistrationHandler(userAuthenticator));
-
-
         try{
+            UserAuthenticator userAuthenticator = new UserAuthenticator("get");
+            HttpsServer server = HttpsServer.create(new InetSocketAddress(8001),0);
+            HttpContext HttpContext = server.createContext("/warning", new Server());
+            HttpContext.setAuthenticator(userAuthenticator);
+            server.createContext("/registration", new RegistrationHandler(userAuthenticator));
             SSLContext sslContext = serverSSLContext(args[0], args[1]);
             server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
-            public void configure (HttpsParameters params) {
-            InetSocketAddress remote = params.getClientAddress();
-            SSLContext c = getSSLContext();
-            SSLParameters sslparams = c.getDefaultSSLParameters();
-            params.setSSLParameters(sslparams);
-            }
+                public void configure (HttpsParameters params) {
+                    InetSocketAddress remote = params.getClientAddress();
+                    SSLContext c = getSSLContext();
+                    SSLParameters sslparams = c.getDefaultSSLParameters();
+                    params.setSSLParameters(sslparams);
+                }
             });
             
             //create context that defines path for the resource, in this case a "help"
