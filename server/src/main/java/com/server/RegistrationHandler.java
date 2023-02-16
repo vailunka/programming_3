@@ -1,13 +1,16 @@
 package com.server;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
-
-import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.json.JSONException;
+import org.json.JSONObject;
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
 
 public class RegistrationHandler implements HttpHandler{
     public UserAuthenticator registerUserAuthenticator;
@@ -20,32 +23,19 @@ public class RegistrationHandler implements HttpHandler{
     @Override
     public void handle(HttpExchange r) throws IOException {
         // TODO Auto-generated method stub
+        Headers headers = r.getRequestHeaders();
+        String contentType = "";
         if (r.getRequestMethod().equalsIgnoreCase("POST")) {
-            
-            // Handle POST requests here (users send this for sending messages)
-            String text = Response.postHandle(r);
-            String [] register = text.split(":");
-            //if no username or password
-            if(register.length != 2){
-                Response.responseHandlerPost("Need User or password", 401, r);
+            if(headers.containsKey("Content-Type")){
+                contentType = headers.get("Content-Type").get(0);
             }
-            //registeration completed
-            if(UserAuthenticator.addUser(register[0], register[1])){
-                
-                Response.responseHandlerPost("Registeration completed", 200, r);
-            }
-            // user already exist
             else{
-                Response.responseHandlerPost("User already exist", 401, r);
+                Response.responseHandlerPost("no content", 411, r);
             }
-            }
-        else {
-            Response.responseHandlerPost("Only post allowed", 403, r);
-        // Inform user here that only POST functions are supported and send an error code
-        }
+            
         
     }
 
-    
+}
     
 }

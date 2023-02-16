@@ -4,33 +4,40 @@ import java.security.Key;
 import java.util.*;
 
 public class UserAuthenticator extends com.sun.net.httpserver.BasicAuthenticator {
-    private static Map<String,String> users = null;
+    private static ArrayList<User> users = null;
     
     public UserAuthenticator(String realm){
         super(realm);
-        users = new Hashtable<String, String>();
-        users.put("dummy", "passwd");
+        users = new ArrayList<User>();
+        
         
     }
     
 	@Override
 	public boolean checkCredentials(String username, String password) {
-		// TODO Auto-generated method stubs
-        
-        if(users.containsKey(username) && password.equals(users.get(username))){
-            return true;
+		// Checking crederntials if username matches and password matched grants passed
+        for(int i = 0; i < users.size(); i++){
+            if(users.get(i).getUserName().equals(username) && users.get(i).getPassword().equals(password)){
+                return true;
+            }
         }
+        
         return false;
 	}
 
-    public static boolean addUser(String userName, String password) {
-        // TODO implement this by adding user to the Hashtable
+    public static boolean addUser(String userName, String password, String email) {
         
-        if(!users.containsKey(userName)){
-            users.put(userName, password);
-            return true;
+        //looking if user exist if not adding it to arraylist users
+       for(int j = 0; j < users.size(); j++){
+            if(users.get(j).getUserName().equals(userName)){
+                return false;
+            }
         }
-        return false;
+            User newUser = new User(userName, password, email);
+
+            users.add(newUser);
+            return true;
+       
        
 }
 }

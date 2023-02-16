@@ -66,7 +66,7 @@ public class Server implements HttpHandler {
         KeyStore ks = KeyStore.getInstance("JKS");
         //ks.load(new FileInputStream(args), passphrase);
         ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
-
+        //ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, passphrase);
 
