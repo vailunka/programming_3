@@ -1,17 +1,14 @@
 package com.server;
 
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManagerFactory;
 import com.sun.net.httpserver.HttpsServer;
 import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpsConfigurator;
@@ -65,8 +62,8 @@ public class Server implements HttpHandler {
         char[] passphrase = "123456".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
         //ks.load(new FileInputStream(args), passphrase);
-        ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
-        //ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
+        //ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
+        ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, passphrase);
 

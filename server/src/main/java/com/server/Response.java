@@ -13,7 +13,6 @@ public class Response {
     public static String postHandle( HttpExchange httpExchange){
         String text = new BufferedReader(new InputStreamReader(httpExchange.getRequestBody(),
         StandardCharsets.UTF_8)).lines().collect(Collectors.joining("\n"));
-        httpExchange.close();
         return text;
     }
 

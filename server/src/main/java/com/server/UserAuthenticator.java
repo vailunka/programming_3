@@ -34,7 +34,6 @@ public class UserAuthenticator extends com.sun.net.httpserver.BasicAuthenticator
             }
         }
             User newUser = new User(userName, password, email);
-
             users.add(newUser);
             return true;
        
