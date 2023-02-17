@@ -8,9 +8,7 @@ public class UserAuthenticator extends com.sun.net.httpserver.BasicAuthenticator
     
     public UserAuthenticator(String realm){
         super(realm);
-        users = new ArrayList<User>();
-        
-        
+        users = new ArrayList<User>();  
     }
     
 	@Override

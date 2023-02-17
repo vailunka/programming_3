@@ -31,7 +31,7 @@ public class RegistrationHandler implements HttpHandler{
                 }
                 if(contentType.equalsIgnoreCase("application/json")){
                     String newUser = Response.postHandle(r);
-                    System.out.println(newUser);
+                    
                     
                     if(newUser == null || newUser.length() == 0){
                         //if new user is null sending 412 which means precondition failed
