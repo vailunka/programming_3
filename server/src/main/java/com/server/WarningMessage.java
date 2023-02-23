@@ -2,18 +2,20 @@ package com.server;
 import java.util.*;
 public class WarningMessage {
     String nickname;
-    String latitude;
-    String longitude;
+    double latitude;
+    double longitude;
+    String sent;
     String dangertype;
     
    
 
 
 
-    public WarningMessage(String nickname, String latitude, String longitude, String dangertype) {
+    public WarningMessage(String nickname, double latitude, double longitude, String sent,  String dangertype) {
         this.nickname = nickname;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.sent = sent;
         this.dangertype = dangertype;
     }
 
@@ -25,20 +27,24 @@ public class WarningMessage {
         this.nickname = nickname;
     }
 
-    public String getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(String latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public String getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(String longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getSent(){
+        return sent;
     }
 
     public String getDangertype() {

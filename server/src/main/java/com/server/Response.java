@@ -20,7 +20,7 @@ public class Response {
         byte [] bytes = response.getBytes("UTF-8"); 
         httpExchange.sendResponseHeaders(responseCode, bytes.length);
         OutputStream outputStream = httpExchange.getResponseBody();
-        outputStream.write(response.getBytes());
+        outputStream.write(bytes);
         outputStream.flush();
         outputStream.close();
     }

@@ -20,10 +20,22 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpsConfigurator;
 import java.io.*;
 import com.sun.net.httpserver.HttpsParameters;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.regex.Pattern;
+
 //todot
 
 
 public class Server implements HttpHandler {
+
+    //database object
     
     private Server() {
     }
@@ -45,25 +57,34 @@ public class Server implements HttpHandler {
         }
         if(contentType.equalsIgnoreCase("application/json")){
             String newMessage = Response.postHandle(t);
-            System.out.println("new message" + newMessage);
             try{
                 objmessage = new JSONObject(newMessage);
             }catch(JSONException e){
                 System.out.println("JSon parse failed");
             }
-            System.out.println("testings1");
+           try{
             String nickname = objmessage.getString("nickname");
-            String latitude = objmessage.getString("latitude");
-            String longitude = objmessage.getString("longitude");
+            
+            double latitude = objmessage.getDouble("latitude");
+            
+            double longitude = objmessage.getDouble("longitude");
+            
             String dangertype = objmessage.getString("dangertype");
             
-            System.out.println(nickname + latitude + longitude + dangertype);
-
-
-            WarningMessage message = new WarningMessage(nickname, latitude, longitude, dangertype);
-            System.out.println("what");
+            String dateText = objmessage.getString("sent");
+            System.out.println(dateText);
+            String test = "2023-12-12'T'92:12:12.123T";
+            String pattern = "[0-9]{4}-[0-9]{2}-[0-9]{2}[A-Z][0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9][A-Z]";
+            System.out.println(Pattern.matches(pattern, dateText));
+            if(!Pattern.matches(pattern, dateText)){
+                Response.responseHandlerPost("date not right", 400, t);
+            }
+            
+            WarningMessage message = new WarningMessage(nickname, latitude, longitude, dateText, dangertype);
             warningmessages.add(message);
-            System.out.println("testing");
+           }catch(JSONException e){
+            Response.responseHandlerPost("wront type of data", 400, t);
+           }
         }
         else{
             //type not json
@@ -85,16 +106,16 @@ public class Server implements HttpHandler {
                 JSONArray array = new JSONArray();
                 for(int i = 0; i < warningmessages.size(); i++){
                     JSONObject addmessage = new JSONObject();
-                    addmessage.put("nickname", warningmessages.get(i).getNickname())
-                        .put("latitude", warningmessages.get(i).getLatitude())
-                        .put("longitude", warningmessages.get(i).getLongitude())
-                        .put("dangertype", warningmessages.get(i).getDangertype());
+                    addmessage.put("nickname", warningmessages.get(i).getNickname());
+                    addmessage.put("longitude", warningmessages.get(i).getLongitude());
+                    addmessage.put("latitude", warningmessages.get(i).getLatitude());
+                    addmessage.put("sent", warningmessages.get(i).getSent());
+                    addmessage.put("dangertype", warningmessages.get(i).getDangertype());
                     array.put(addmessage);
-                    System.out.println(array);
-                    System.out.println(addmessage);
+                
+                    
                 }
                 String messages = array.toString(1);
-                System.out.println(messages);
                 Response.responseHandlerPost(messages, 200, t);
             }
             
@@ -107,13 +128,13 @@ public class Server implements HttpHandler {
         }
     }
 
-    private static SSLContext serverSSLContext(String args, String args1) throws Exception{
-    //private static SSLContext serverSSLContext() throws Exception{
-        char[] passphrase = args1.toCharArray();
-        //char[] passphrase = "123456".toCharArray();
+    //private static SSLContext serverSSLContext(String args, String args1) throws Exception{
+    private static SSLContext serverSSLContext() throws Exception{
+        //char[] passphrase = args1.toCharArray();
+        char[] passphrase = "123456".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(args), passphrase);
-        //ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
+        //ks.load(new FileInputStream(args), passphrase);
+        ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
         //ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, passphrase);
@@ -136,8 +157,8 @@ public class Server implements HttpHandler {
             HttpContext HttpContext = server.createContext("/warning", new Server());
             HttpContext.setAuthenticator(userAuthenticator);
             server.createContext("/registration", new RegistrationHandler(userAuthenticator));
-            SSLContext sslContext = serverSSLContext(args[0], args[1]);
-            //SSLContext sslContext = serverSSLContext();
+            //SSLContext sslContext = serverSSLContext(args[0], args[1]);
+            SSLContext sslContext = serverSSLContext();
             server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
                 public void configure (HttpsParameters params) {
                     InetSocketAddress remote = params.getClientAddress();
