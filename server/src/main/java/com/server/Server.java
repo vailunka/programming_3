@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 public class Server implements HttpHandler {
 
     //database object
-    MessageDB messageDB = new MessageDB();
+    //MessageDB messageDB = new MessageDB();
     private Server() {
     }
     private static ArrayList<WarningMessage> warningmessages = new ArrayList<WarningMessage>();
