@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 public class Server implements HttpHandler {
 
     //database object
-    
+    MessageDB messageDB = new MessageDB();
     private Server() {
     }
     private static ArrayList<WarningMessage> warningmessages = new ArrayList<WarningMessage>();
@@ -72,10 +72,9 @@ public class Server implements HttpHandler {
             String dangertype = objmessage.getString("dangertype");
             
             String dateText = objmessage.getString("sent");
-            System.out.println(dateText);
-            String test = "2023-12-12'T'92:12:12.123T";
+            //creating pattern to compare to date sent by cluen
             String pattern = "[0-9]{4}-[0-9]{2}-[0-9]{2}[A-Z][0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9][A-Z]";
-            System.out.println(Pattern.matches(pattern, dateText));
+            //if false sending not right 
             if(!Pattern.matches(pattern, dateText)){
                 Response.responseHandlerPost("date not right", 400, t);
             }
@@ -121,20 +120,19 @@ public class Server implements HttpHandler {
             
         // Handle GET requests here (users use this to get messages)
         } else {
-
             Response.responseHandlerPost("not support", 400, t);
         // Inform user here that only POST and GET functions are supported and send an error code
         
         }
     }
 
-    //private static SSLContext serverSSLContext(String args, String args1) throws Exception{
-    private static SSLContext serverSSLContext() throws Exception{
-        //char[] passphrase = args1.toCharArray();
-        char[] passphrase = "123456".toCharArray();
+    private static SSLContext serverSSLContext(String args, String args1) throws Exception{
+    //private static SSLContext serverSSLContext() throws Exception{
+        char[] passphrase = args1.toCharArray();
+        //char[] passphrase = "123456".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
-        //ks.load(new FileInputStream(args), passphrase);
-        ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
+        ks.load(new FileInputStream(args), passphrase);
+        //ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
         //ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, passphrase);
@@ -157,8 +155,8 @@ public class Server implements HttpHandler {
             HttpContext HttpContext = server.createContext("/warning", new Server());
             HttpContext.setAuthenticator(userAuthenticator);
             server.createContext("/registration", new RegistrationHandler(userAuthenticator));
-            //SSLContext sslContext = serverSSLContext(args[0], args[1]);
-            SSLContext sslContext = serverSSLContext();
+            SSLContext sslContext = serverSSLContext(args[0], args[1]);
+            //SSLContext sslContext = serverSSLContext();
             server.setHttpsConfigurator (new HttpsConfigurator(sslContext) {
                 public void configure (HttpsParameters params) {
                     InetSocketAddress remote = params.getClientAddress();
