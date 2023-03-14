@@ -2,6 +2,7 @@ package com.server;
 
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -36,7 +37,7 @@ import java.util.regex.Pattern;
 public class Server implements HttpHandler {
 
     //database object
-    
+    Database db = Database.getInstance();
     private Server() {
     }
     private static ArrayList<WarningMessage> warningmessages = new ArrayList<WarningMessage>();
@@ -72,15 +73,26 @@ public class Server implements HttpHandler {
             String dangertype = objmessage.getString("dangertype");
             
             String dateText = objmessage.getString("sent");
+            String areacode = "null";
+            //areacode = objmessage.getString("areacode");
+            String phonenumber = "null";
+            //phonenumber = objmessage.getString("phonenumber");
             //creating pattern to compare to date sent by client
             String pattern = "[0-9]{4}-[0-9]{2}-[0-9]{2}[A-Z][0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9][A-Z]";
             //if false sending not right 
             if(!Pattern.matches(pattern, dateText)){
                 Response.responseHandlerPost("date not right", 400, t);
             }
+
+            ZonedDateTime sent = OffsetDateTime.parse((CharSequence) dateText).toZonedDateTime();
             
-            WarningMessage message = new WarningMessage(nickname, latitude, longitude, dateText, dangertype);
+            WarningMessage message = new WarningMessage(nickname, latitude, longitude, sent, dangertype/* , areacode, phonenumber*/);
             warningmessages.add(message);
+            try {
+                db.setMessage(message);
+            } catch (SQLException e) {
+                System.out.println("setting messages error");
+            }
            }catch(JSONException e){
             Response.responseHandlerPost("wrong type of data", 400, t);
            }
@@ -102,6 +114,7 @@ public class Server implements HttpHandler {
                 Response.responseHandlerPost("no messages", 204, t);
             }
             else{
+                /* 
                 JSONArray array = new JSONArray();
                 for(int i = 0; i < warningmessages.size(); i++){
                     JSONObject addmessage = new JSONObject();
@@ -114,8 +127,19 @@ public class Server implements HttpHandler {
                 
                     
                 }
-                String messages = array.toString(1);
-                Response.responseHandlerPost(messages, 200, t);
+                */
+                try {
+                    String messages1 = db.getMessages();
+                    System.out.println(messages1);
+                    Response.responseHandlerPost(messages1, 200, t);
+                } catch (JSONException | SQLException e) {
+                    // TODO Auto-generated catch block
+                    System.out.println("getting messages error");
+                }
+
+
+                //String messages = array.toString(1);
+                //Response.responseHandlerPost(messages, 200, t);
             }
             
         // Handle GET requests here (users use this to get messages)
@@ -133,8 +157,8 @@ public class Server implements HttpHandler {
         char[] passphrase = "123456".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
         //ks.load(new FileInputStream(args), passphrase);
-        ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
-        //ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
+        //ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
+        ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, passphrase);
 
