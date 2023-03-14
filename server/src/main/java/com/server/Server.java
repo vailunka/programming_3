@@ -2,6 +2,7 @@ package com.server;
 
 import java.net.InetSocketAddress;
 import java.security.KeyStore;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -36,7 +37,7 @@ import java.util.regex.Pattern;
 public class Server implements HttpHandler {
 
     //database object
-    MessageDB messageDB = new MessageDB();
+    Database db = Database.getInstance();
     private Server() {
     }
     private static ArrayList<WarningMessage> warningmessages = new ArrayList<WarningMessage>();
@@ -78,9 +79,16 @@ public class Server implements HttpHandler {
             if(!Pattern.matches(pattern, dateText)){
                 Response.responseHandlerPost("date not right", 400, t);
             }
+
+            ZonedDateTime sent = OffsetDateTime.parse((CharSequence) dateText).toZonedDateTime();
             
-            WarningMessage message = new WarningMessage(nickname, latitude, longitude, dateText, dangertype);
+            WarningMessage message = new WarningMessage(nickname, latitude, longitude, sent, dangertype);
             warningmessages.add(message);
+            try {
+                db.setMessage(message);
+            } catch (SQLException e) {
+                System.out.println("setting messages error");
+            }
            }catch(JSONException e){
             Response.responseHandlerPost("wront type of data", 400, t);
            }
@@ -102,6 +110,7 @@ public class Server implements HttpHandler {
                 Response.responseHandlerPost("no messages", 204, t);
             }
             else{
+                /* 
                 JSONArray array = new JSONArray();
                 for(int i = 0; i < warningmessages.size(); i++){
                     JSONObject addmessage = new JSONObject();
@@ -114,8 +123,19 @@ public class Server implements HttpHandler {
                 
                     
                 }
-                String messages = array.toString(1);
-                Response.responseHandlerPost(messages, 200, t);
+                */
+                try {
+                    String messages1 = db.getMessages();
+                    System.out.println(messages1);
+                    Response.responseHandlerPost(messages1, 200, t);
+                } catch (JSONException | SQLException e) {
+                    // TODO Auto-generated catch block
+                    System.out.println("getting messages error");
+                }
+
+
+                //String messages = array.toString(1);
+                //Response.responseHandlerPost(messages, 200, t);
             }
             
         // Handle GET requests here (users use this to get messages)
@@ -150,6 +170,7 @@ public class Server implements HttpHandler {
     public static void main(String[] args) throws Exception {
         //create the http server to port 8001 with default logger
         try{
+            
             UserAuthenticator userAuthenticator = new UserAuthenticator("get");
             HttpsServer server = HttpsServer.create(new InetSocketAddress(8001),0);
             HttpContext HttpContext = server.createContext("/warning", new Server());
