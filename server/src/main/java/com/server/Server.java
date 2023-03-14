@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 public class Server implements HttpHandler {
 
     //database object
-    MessageDB messageDB = new MessageDB();
+    
     private Server() {
     }
     private static ArrayList<WarningMessage> warningmessages = new ArrayList<WarningMessage>();
@@ -72,7 +72,7 @@ public class Server implements HttpHandler {
             String dangertype = objmessage.getString("dangertype");
             
             String dateText = objmessage.getString("sent");
-            //creating pattern to compare to date sent by cluen
+            //creating pattern to compare to date sent by client
             String pattern = "[0-9]{4}-[0-9]{2}-[0-9]{2}[A-Z][0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9][A-Z]";
             //if false sending not right 
             if(!Pattern.matches(pattern, dateText)){
@@ -82,7 +82,7 @@ public class Server implements HttpHandler {
             WarningMessage message = new WarningMessage(nickname, latitude, longitude, dateText, dangertype);
             warningmessages.add(message);
            }catch(JSONException e){
-            Response.responseHandlerPost("wront type of data", 400, t);
+            Response.responseHandlerPost("wrong type of data", 400, t);
            }
         }
         else{
@@ -128,6 +128,7 @@ public class Server implements HttpHandler {
 
     //private static SSLContext serverSSLContext(String args, String args1) throws Exception{
     private static SSLContext serverSSLContext() throws Exception{
+        
         //char[] passphrase = args1.toCharArray();
         char[] passphrase = "123456".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
@@ -150,6 +151,7 @@ public class Server implements HttpHandler {
     public static void main(String[] args) throws Exception {
         //create the http server to port 8001 with default logger
         try{
+            
             UserAuthenticator userAuthenticator = new UserAuthenticator("get");
             HttpsServer server = HttpsServer.create(new InetSocketAddress(8001),0);
             HttpContext HttpContext = server.createContext("/warning", new Server());
