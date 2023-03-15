@@ -56,7 +56,7 @@ public class Database {
     private void init(Connection dbconnection) throws SQLException{
         if (null != dbConnection) {
             String createUserTable = "create table users (username varchar(50) NOT NULL, password varchar(50) NOT NULL, email varchar(50), primary key(username))";
-            String createMessageTable = "create table messages(nickname varchar(50) NOT NULL, dangertype VARCHAR(50) NOT NULL, longitude DOUBLE(4,20) NOT NULL, latitude DOUBLE(4,20) NOT NULL, sent INTERGER(20) NOT NULL)";
+            String createMessageTable = "create table messages(nickname varchar(50) NOT NULL, dangertype VARCHAR(50) NOT NULL, longitude DOUBLE(4,20) NOT NULL, latitude DOUBLE(4,20) NOT NULL, sent INTERGER(20) NOT NULL, areacode VARCHAR(10), phonenumber VARCHAR(20))";
             Statement createStatement = dbConnection.createStatement();
             createStatement.executeUpdate(createUserTable);
             createStatement.executeUpdate(createMessageTable);
@@ -105,7 +105,7 @@ public class Database {
 
     public void setMessage(WarningMessage message) throws SQLException {
         System.out.println("starting insert message");
-        String SetMessageString = "INSERT INTO messages VALUES(?,?,?,?,?)";
+        String SetMessageString = "INSERT INTO messages VALUES(?,?,?,?,?,?,?)";
         PreparedStatement insertStatement = dbConnection.prepareStatement(SetMessageString);
 
         insertStatement.setString(1, message.getNickname());
@@ -113,10 +113,12 @@ public class Database {
         insertStatement.setDouble(3, message.getLongitude());
         insertStatement.setDouble(4, message.getLatitude());
         insertStatement.setLong(5, message.dateAsInt());
-        /* 
-        insertStatement.setString(6, message.getAreacode());
-        insertStatement.setString(7, message.getPhonenumber());
-        */
+        if(message.getAreacode() != null || message.getPhonenumber() != null){
+            insertStatement.setString(6, message.getAreacode());
+            insertStatement.setString(7, message.getPhonenumber());
+        }
+        
+        
 		insertStatement.executeUpdate();
 		insertStatement.close();
        
@@ -127,7 +129,7 @@ public class Database {
         Statement queryStatement = null;
         JSONObject obj = new JSONObject();
         JSONArray array = new JSONArray();
-        String getMessagesString = "select nickname, dangertype, longitude, latitude, sent from messages";
+        String getMessagesString = "select nickname, dangertype, longitude, latitude, sent, areacode, phonenumber from messages";
 
         queryStatement = dbConnection.createStatement();
 		ResultSet rs = queryStatement.executeQuery(getMessagesString);
@@ -139,10 +141,12 @@ public class Database {
             obj.put("latitude", rs.getDouble("latitude"));
             ZonedDateTime time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(rs.getLong("sent")), ZoneOffset.UTC);
             obj.put("sent", time);
-            /* 
-            obj.put("areacode", rs.getString("areacode"));
-            obj.put("phonenumber", rs.getString("phonenumber"));
-            */
+            if(rs.getString("areacode").length() != 0 || rs.getString("phonenumber").length() != 0){
+                obj.put("areacode", rs.getString("areacode"));
+                obj.put("phonenumber", rs.getString("phonenumber"));
+            }
+            
+            
             array.put(obj);
 		}
 
