@@ -73,10 +73,16 @@ public class Server implements HttpHandler {
             String dangertype = objmessage.getString("dangertype");
             
             String dateText = objmessage.getString("sent");
-            String areacode = "null";
-            //areacode = objmessage.getString("areacode");
-            String phonenumber = "null";
-            //phonenumber = objmessage.getString("phonenumber");
+            String areacode = "";
+            String phonenumber = "";
+            try {
+                areacode = objmessage.getString("areacode");
+                phonenumber = objmessage.getString("phonenumber");
+            } catch (Exception e) {
+                // TODO: handle exception
+                System.out.println("no areacode nor phonenumber");
+            }
+            
             //creating pattern to compare to date sent by client
             String pattern = "[0-9]{4}-[0-9]{2}-[0-9]{2}[A-Z][0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9][A-Z]";
             //if false sending not right 
@@ -86,7 +92,7 @@ public class Server implements HttpHandler {
 
             ZonedDateTime sent = OffsetDateTime.parse((CharSequence) dateText).toZonedDateTime();
             
-            WarningMessage message = new WarningMessage(nickname, latitude, longitude, sent, dangertype/* , areacode, phonenumber*/);
+            WarningMessage message = new WarningMessage(nickname, latitude, longitude, sent, dangertype , areacode, phonenumber);
             warningmessages.add(message);
             try {
                 db.setMessage(message);
@@ -157,8 +163,8 @@ public class Server implements HttpHandler {
         char[] passphrase = "123456".toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
         //ks.load(new FileInputStream(args), passphrase);
-        //ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
-        ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
+        ks.load(new FileInputStream("C:/Users/ailun/programming3/group-0047-project/server/keystore.jks"), passphrase);
+        //ks.load(new FileInputStream("C:/Users/ailun/keystore/keystore1.jks"), passphrase);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, passphrase);
 

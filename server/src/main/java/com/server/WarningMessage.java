@@ -17,13 +17,17 @@ public class WarningMessage {
 
 
 
-    public WarningMessage(String nickname, double latitude, double longitude, ZonedDateTime sent,  String dangertype) {
+    public WarningMessage(String nickname, double latitude, double longitude, ZonedDateTime sent,  String dangertype, String areacode, String phonenumber) {
         this.nickname = nickname;
         this.latitude = latitude;
         this.longitude = longitude;
         this.sent = sent;
         this.dangertype = dangertype;
+        this.areacode = areacode;
+        this.phonenumber = phonenumber;
     }
+
+    
 
     public String getNickname() {
         return nickname;
