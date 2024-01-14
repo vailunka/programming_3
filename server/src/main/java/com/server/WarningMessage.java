@@ -15,8 +15,6 @@ public class WarningMessage {
     
    
 
-
-
     public WarningMessage(String nickname, double latitude, double longitude, ZonedDateTime sent,  String dangertype, String areacode, String phonenumber) {
         this.nickname = nickname;
         this.latitude = latitude;

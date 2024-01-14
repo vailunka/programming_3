@@ -4,6 +4,8 @@ import java.net.InetSocketAddress;
 import java.security.KeyStore;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
@@ -21,7 +23,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpsConfigurator;
 import java.io.*;
 import com.sun.net.httpserver.HttpsParameters;
-import java.io.IOException;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -62,6 +64,7 @@ public class Server implements HttpHandler {
                 objmessage = new JSONObject(newMessage);
             }catch(JSONException e){
                 System.out.println("JSon parse failed");
+                Response.responseHandlerPost("type not json", 407, t);
             }
            try{
             String nickname = objmessage.getString("nickname");
@@ -72,16 +75,22 @@ public class Server implements HttpHandler {
             
             String dangertype = objmessage.getString("dangertype");
             
+            if(!(dangertype.equals("Moose")) || !(dangertype.equals("Deer")) || !(dangertype.equals("Reindeer")) || !(dangertype.equals("Other")) ){
+                Response.responseHandlerPost("not support dangertype", 400, t);
+            }
+            
             String dateText = objmessage.getString("sent");
             String areacode = "";
             String phonenumber = "";
             try {
                 areacode = objmessage.getString("areacode");
                 phonenumber = objmessage.getString("phonenumber");
+                
             } catch (Exception e) {
                 // TODO: handle exception
-                System.out.println("no areacode nor phonenumber");
             }
+            
+            
             
             //creating pattern to compare to date sent by client
             String pattern = "[0-9]{4}-[0-9]{2}-[0-9]{2}[A-Z][0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9][A-Z]";
@@ -92,7 +101,7 @@ public class Server implements HttpHandler {
 
             ZonedDateTime sent = OffsetDateTime.parse((CharSequence) dateText).toZonedDateTime();
             
-            WarningMessage message = new WarningMessage(nickname, latitude, longitude, sent, dangertype , areacode, phonenumber);
+            WarningMessage message = new WarningMessage(nickname, latitude, longitude, sent, dangertype, areacode, phonenumber);
             warningmessages.add(message);
             try {
                 db.setMessage(message);
@@ -102,19 +111,17 @@ public class Server implements HttpHandler {
            }catch(JSONException e){
             Response.responseHandlerPost("wrong type of data", 400, t);
            }
+           
         }
         else{
             //type not json
             Response.responseHandlerPost("type not json", 407, t);
         }
+
             t.sendResponseHeaders(200, -1);
             t.close();
-        
-        
-        
-        
-        
         } 
+
         else if (t.getRequestMethod().equalsIgnoreCase("GET")) {
             if(warningmessages.isEmpty()){
                 Response.responseHandlerPost("no messages", 204, t);
@@ -201,7 +208,7 @@ public class Server implements HttpHandler {
             //create context that defines path for the resource, in this case a "help"
             
             // creates a default executor
-            server.setExecutor(null); 
+            server.setExecutor(Executors.newCachedThreadPool());
             server.start(); 
         }catch(FileNotFoundException e){
         System.out.println("File not found");
